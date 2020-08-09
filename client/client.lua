@@ -4,6 +4,7 @@ local showTags = true
 local seeTags = false
 local isDriver = false
 local staffTable = { 0 }
+local TagDistance = 25
 
 RegisterNetEvent('staffTag')
 AddEventHandler('staffTag', function(playerID)
@@ -14,6 +15,12 @@ AddEventHandler('staffTag', function(playerID)
 		staffTag = true
 		TriggerEvent('chat:addMessage', {color = { 0, 125, 255},multiline = false,args = {"[JD_PlayerID]", "Staff tag ^*^2Enabled^0"}})
 	end
+end)
+
+
+RegisterCommand("tagRange", function(source, args, rawCommand)
+	TagDistance = tonumber(args[1])
+	TriggerEvent('chat:addMessage', {color = { 0, 125, 255},multiline = false,args = {"[JD_PlayerID]", "Player tag distance set to: ^*^2"..TagDistance.."^0"}})
 end)
 
 RegisterNetEvent('sendStaff')
@@ -49,11 +56,11 @@ function ManageHeadLabels()
 		if NetworkIsPlayerActive(i) then
 			local iPed = GetPlayerPed(i)
 			local lPed = PlayerPedId()
-			if iPed ~= lPed then-- EDIT!!!
+			if iPed ~= lPed then
 				if DoesEntityExist(iPed) then
 					distance = math.ceil(GetDistanceBetweenCoords(GetEntityCoords(lPed), GetEntityCoords(iPed)))
-					if HasEntityClearLosToEntity(iPed, lPed, 17) or seeTags then
-						if distance < disPlayerNames and showTags then
+					if HasEntityClearLosToEntity(lPed, iPed, 17) or seeTags then
+						if distance < TagDistance and showTags then
 							if NetworkIsPlayerTalking(i) then
 								headDisplayId = N_0xbfefe3321a3f5015(iPed, "", false, false, "", false )
 								SetMpGamerTagAlpha(headDisplayId, 4, 225)							
@@ -81,6 +88,11 @@ function ManageHeadLabels()
 							SetMpGamerTagVisibility(headDisplayId, 0, false)
 							SetMpGamerTagVisibility(headDisplayId, 7, false)
 						end
+					else
+						headDisplayId = N_0xbfefe3321a3f5015(iPed, "", false, false, "", false )
+						SetMpGamerTagName(headDisplayId,GetPlayerServerId(i).." | "..GetPlayerName(i))
+						SetMpGamerTagVisibility(headDisplayId, 0, false)
+						SetMpGamerTagVisibility(headDisplayId, 7, false)
 					end
 				end
 			end
@@ -101,6 +113,6 @@ end
 Citizen.CreateThread(function()
 	while true do
 		ManageHeadLabels()
-		Citizen.Wait(0)
+		Citizen.Wait(500)
 	end
 end)

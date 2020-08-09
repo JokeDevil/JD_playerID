@@ -1,4 +1,4 @@
 Config = {}
 
 DisplayStaffTag = "Staff |"
-disPlayerNames = 15
+disPlayerNames = 25
